@@ -37,7 +37,7 @@ exports.requestHandler = function(request, response) {
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
-
+  var captureData;
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
@@ -46,13 +46,24 @@ exports.requestHandler = function(request, response) {
   headers['Content-Type'] = "application/json";
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  if (request.method == 'POST'){
+  if (request.method === 'POST'){
     response.writeHead(201, headers);
+    console.log('\n \n \n HERE IS THE REQUEST:', request);
+
+    captureData = request._postData;   // ALMOST THERE but something is off!!!
     response.end("asdfdssdafsadfsafdsfasdfsd");
   }
 
+  if (request.method === 'GET'){
+    response._data = captureData;   //ALMOST THERE but something is off
+    response.writeHead(200, headers);
+    console.log('\n \n RESPONSE!:', response);
+    response.end( JSON.stringify({results: []}) );
+  }
 
-  response.writeHead(statusCode, headers);
+
+ // response.writeHead(statusCode, headers);
+  
   // response.write( JSON.stringify(response) );
 
   // Make sure to always call response.end() - Node may not send
@@ -62,28 +73,9 @@ exports.requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
+    
   
-  //response.end("Hello, World!");
-  
-
-  // var request = require('request');
-  // request.end(request.data);
-  
-
-  // var request = require('request');
-  // request.post({
-  //   url: 'http://127.0.0.1:3000/classes/room'
-  // }, function(error, response, body){
-  //   console.log("SUCCESSFUL POST REQUEST HANDLING");
-  // });
-
-  // request.write(response.data);
-
-
-  //console.log("\n \n \n RESPONSE SENT:", response);
-
-
-  response.end(JSON.stringify({results: []}) );
+ // response.end(JSON.stringify({results: []}) );
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
