@@ -15,6 +15,10 @@ var port = 3000;
 var ip = "127.0.0.1";
 
 
+// DONT FORGET TO RUN NODEMON TO AUTOMATICALLY RESTART THE SERVER ON ANY CHANGES
+//
+
+
 
 // We use node's http module to create a server.
 //

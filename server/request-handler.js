@@ -12,7 +12,7 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-var requestHandler = function(request, response) {
+exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -27,7 +27,10 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
+
+
   console.log("Serving request type " + request.method + " for url " + request.url);
+  
 
   // The outgoing status.
   var statusCode = 200;
@@ -39,11 +42,18 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
-
+  // headers['Content-Type'] = "text/plain";
+  headers['Content-Type'] = "application/json";
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
+  if (request.method == 'POST'){
+    response.writeHead(201, headers);
+    response.end("asdfdssdafsadfsafdsfasdfsd");
+  }
+
+
   response.writeHead(statusCode, headers);
+  // response.write( JSON.stringify(response) );
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -52,7 +62,28 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+  
+  //response.end("Hello, World!");
+  
+
+  // var request = require('request');
+  // request.end(request.data);
+  
+
+  // var request = require('request');
+  // request.post({
+  //   url: 'http://127.0.0.1:3000/classes/room'
+  // }, function(error, response, body){
+  //   console.log("SUCCESSFUL POST REQUEST HANDLING");
+  // });
+
+  // request.write(response.data);
+
+
+  //console.log("\n \n \n RESPONSE SENT:", response);
+
+
+  response.end(JSON.stringify({results: []}) );
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
