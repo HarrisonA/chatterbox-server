@@ -12,6 +12,8 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
+  // var captureData =[];
+  var captureData = {results: []};
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -37,7 +39,6 @@ exports.requestHandler = function(request, response) {
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
-  var captureData;
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
@@ -47,18 +48,54 @@ exports.requestHandler = function(request, response) {
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   if (request.method === 'POST'){
-    response.writeHead(201, headers);
-    console.log('\n \n \n HERE IS THE REQUEST:', request);
 
-    captureData = request._postData;   // ALMOST THERE but something is off!!!
-    response.end("asdfdssdafsadfsafdsfasdfsd");
+    //headers['Content-Length'] = Buffer.byteLength(request._postData);
+    //console.log('\n \n \n HEADERS HEADERS:', headers, "\n \n \n");
+    response.writeHead(201, headers);
+    //console.log('\n \n \n HERE IS THE REQUEST:', request);
+
+    request.on("data", function (dataChunk){
+      captureData.results.push(JSON.parse(dataChunk)); 
+      //console.log("faddddsdsdsdssdd: ", dataChunk);  
+    });
+    
+    //console.log("\n\nPost: ", request, "\n\n");
+    request.on("end", function(){response.end()}) ;
   }
 
   if (request.method === 'GET'){
-    response._data = captureData;   //ALMOST THERE but something is off
-    response.writeHead(200, headers);
-    console.log('\n \n RESPONSE!:', response);
-    response.end( JSON.stringify({results: []}) );
+    //console.log('\n \n \n\nRESPONSE DATA!:', response._data);
+    //console.log("\n\n GET's captureData: ", captureData, "\n\n");
+    //console.log("\n\n\n\n\nREQUEST:", request);
+
+    if ( request.url === '/arglebargle'){
+      response.writeHead(404, headers);
+     // console.log("\n\n\n\n\n  ARBLEL RESPOSNE", response)
+      response.end();
+    }
+    
+    else {
+      response.writeHead(200, headers);
+      
+      
+    
+      response.end( JSON.stringify(captureData) );
+
+      // response.on('end', function(){
+      //   var result = captureData.join('');
+      //   console.log('\n \n \n STRINGIFIED RESPONSE', JSON.stringify(result), "\n \n \n" )
+      //   return JSON.stringify(result);
+      // })
+
+    }
+    //response._data.results = captureData;   //ALMOST THERE but something is off
+    
+    
+    // response.end( JSON.stringify({results: []}) );
+    //response.write(JSON.stringify({results: captureData}));
+
+    //console.log(response);
+    // response.end( JSON.stringify({results: response._data.results}) );
   }
 
 

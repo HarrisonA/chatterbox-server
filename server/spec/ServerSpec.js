@@ -1,3 +1,5 @@
+
+
 var handler = require('../request-handler');
 var expect = require('../../node_modules/chai/chai').expect;
 var stubs = require('./Stubs');
@@ -79,7 +81,7 @@ describe('Node Server Request Listener Function', function() {
 
 it('Should respond with messages that were previously posted', function() {
     var stubMsg = {
-      username: 'Jono',
+      username: 'Jon',
       message: 'Do my bidding!'
     };
     var req = new stubs.request('/classes/room1', 'POST', stubMsg);
@@ -119,3 +121,5 @@ it('Should respond with messages that were previously posted', function() {
   });
 
 });
+
+
