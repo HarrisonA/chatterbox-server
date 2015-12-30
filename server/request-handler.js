@@ -12,8 +12,10 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-  // var captureData =[];
-  var captureData = {results: []};
+var fs = require('fs');   // required to use filesystem aka (fs) methods
+var filename = "./server/CaptureDate.txt";  // file location (for writing)
+var captureData = {results: []};   // object where the data results will be kept in the array
+
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -45,32 +47,30 @@ exports.requestHandler = function(request, response) {
   // other than plain text, like JSON or HTML.
   // headers['Content-Type'] = "text/plain";
   headers['Content-Type'] = "application/json";
+
+
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   if (request.method === 'POST'){
 
-    //headers['Content-Length'] = Buffer.byteLength(request._postData);
-    //console.log('\n \n \n HEADERS HEADERS:', headers, "\n \n \n");
     response.writeHead(201, headers);
-    //console.log('\n \n \n HERE IS THE REQUEST:', request);
 
-    request.on("data", function (dataChunk){
-      captureData.results.push(JSON.parse(dataChunk)); 
-      //console.log("faddddsdsdsdssdd: ", dataChunk);  
+    request.on("data", function (dataChunk){        // data arrives from the server in chunks/packets
+      captureData.results.push(JSON.parse(dataChunk));  // before adding to our data array, we need to JSON parse it so it can be put back in object form, otherwise it will be in unreadable buffer chunks/packets
     });
     
-    //console.log("\n\nPost: ", request, "\n\n");
-    request.on("end", function(){response.end()}) ;
+    request.on("end", function(){   // wait for for all the chunks/packets have been collected
+      
+      // Write the data into a text file called "filename".
+      // If we do not JSON.stringify the data first, then the data written to the file will be in the form of unreadble objects (e.g. [object Object]).  By doing JSON.stringify, it is put into more readable text.  Ex:       
+      fs.writeFile(filename, JSON.stringify(captureData.results));
+      response.end()}) ;
   }
 
   if (request.method === 'GET'){
-    //console.log('\n \n \n\nRESPONSE DATA!:', response._data);
-    //console.log("\n\n GET's captureData: ", captureData, "\n\n");
-    //console.log("\n\n\n\n\nREQUEST:", request);
-
+    
     if ( request.url === '/arglebargle'){
       response.writeHead(404, headers);
-     // console.log("\n\n\n\n\n  ARBLEL RESPOSNE", response)
       response.end();
     }
     
@@ -81,27 +81,24 @@ exports.requestHandler = function(request, response) {
     
       response.end( JSON.stringify(captureData) );
 
-      // response.on('end', function(){
-      //   var result = captureData.join('');
-      //   console.log('\n \n \n STRINGIFIED RESPONSE', JSON.stringify(result), "\n \n \n" )
-      //   return JSON.stringify(result);
-      // })
+      
 
     }
-    //response._data.results = captureData;   //ALMOST THERE but something is off
     
-    
-    // response.end( JSON.stringify({results: []}) );
-    //response.write(JSON.stringify({results: captureData}));
-
-    //console.log(response);
-    // response.end( JSON.stringify({results: response._data.results}) );
   }
 
+  else if (request.method === 'OPTIONS'){  // options explanation down below  "Preflighted Requests"
 
- // response.writeHead(statusCode, headers);
-  
-  // response.write( JSON.stringify(response) );
+    response.writeHead(200, headers)
+    response.end();
+  }
+
+ //  Preflighted requests
+
+ // Unlike simple requests (discussed above), "preflighted" requests first send an HTTP OPTIONS request header to the resource on the other domain, in order to determine whether the actual request is safe to send. Cross-site requests are preflighted like this since they may have implications to user data.
+
+
+ 
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -112,7 +109,6 @@ exports.requestHandler = function(request, response) {
   // node to actually send all the data over to the client.
     
   
- // response.end(JSON.stringify({results: []}) );
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -129,5 +125,6 @@ var defaultCorsHeaders = {
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10 // Seconds.
+
 };
 
